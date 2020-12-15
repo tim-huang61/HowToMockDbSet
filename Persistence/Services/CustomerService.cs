@@ -1,3 +1,4 @@
+using System.Linq;
 using Persistence.Models;
 
 namespace Persistence.Services
@@ -13,7 +14,7 @@ namespace Persistence.Services
 
         public Customer FindByID(int id)
         {
-            throw new System.NotImplementedException();
+            return _northwindContext.Customers.FirstOrDefault(c => c.CustomerID == id);
         }
     }
 }
