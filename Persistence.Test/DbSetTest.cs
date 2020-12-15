@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -27,7 +28,7 @@ namespace Persistence.Test
         }
 
         [Test]
-        public void NSub_To_Mock_DbSet()
+        public void Test_FindByID_NSub_To_Mock_DbSet()
         {
             _northwindContext           = Substitute.For<NorthwindContext>();
             _northwindContext.Customers = _data.ToMockDbSet();
@@ -39,12 +40,24 @@ namespace Persistence.Test
         }
 
         [Test]
-        public void Moq_To_Mock_DbSet()
+        public void Test_FindByID_Moq_To_Mock_DbSet()
         {
             _northwindContext           = new Mock<NorthwindContext>().Object;
             _northwindContext.Customers = _data.ToMockDbSetByMoq();
             var customerService = new CustomerService(_northwindContext);
             var customer        = customerService.FindByID(3);
+
+            customer.CustomerID.Should().Be(3);
+        }
+
+        [Test]
+        public async Task Test_FindByIDAsync_NSub_To_Mock_DbSet()
+        {
+            _northwindContext           = Substitute.For<NorthwindContext>();
+            _northwindContext.Customers = _data.ToMockDbSet();
+            var customerService = new CustomerService(_northwindContext);
+
+            var customer = await customerService.FindByIDAsync(3);
 
             customer.CustomerID.Should().Be(3);
         }

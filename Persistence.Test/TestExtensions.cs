@@ -10,13 +10,15 @@ namespace Persistence.Test
     {
         public static DbSet<TEntity> ToMockDbSet<TEntity>(this IEnumerable<TEntity> data) where TEntity : class
         {
-            var mockDbSet = Substitute.For<DbSet<TEntity>, IQueryable<TEntity>>();
+            var mockDbSet = Substitute.For<DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerable<TEntity>>();
             var dataQuery = data.AsQueryable();
             var dbQuery   = (IQueryable<TEntity>) mockDbSet;
             dbQuery.Expression.Returns(dataQuery.Expression);
-            dbQuery.Provider.Returns(dataQuery.Provider);
+            dbQuery.Provider.Returns(new TestAsyncQueryProvider(dataQuery.Provider));
             dbQuery.ElementType.Returns(dbQuery.ElementType);
             dbQuery.GetEnumerator().Returns(new TestEnumerator<TEntity>(dataQuery.GetEnumerator()));
+            var dbAsync = (IAsyncEnumerable<TEntity>) mockDbSet;
+            dbAsync.GetAsyncEnumerator().Returns(new TestAsyncEnumerator<TEntity>(data.GetEnumerator()));
 
             return mockDbSet;
         }

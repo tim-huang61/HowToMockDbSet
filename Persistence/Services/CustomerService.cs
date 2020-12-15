@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Models;
 
 namespace Persistence.Services
@@ -15,6 +17,11 @@ namespace Persistence.Services
         public Customer FindByID(int id)
         {
             return _northwindContext.Customers.FirstOrDefault(c => c.CustomerID == id);
+        }
+
+        public async Task<Customer> FindByIDAsync(int id)
+        {
+            return await _northwindContext.Customers.FirstOrDefaultAsync(c => c.CustomerID == id);
         }
     }
 }
