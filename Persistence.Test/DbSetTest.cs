@@ -16,20 +16,27 @@ namespace Persistence.Test
         [SetUp]
         public void Setup()
         {
-            _northwindContext           = Substitute.For<NorthwindContext>();
-            _northwindContext.Customers = Substitute.For<DbSet<Customer>>();
-            var customers = new List<Customer>
+            _northwindContext = Substitute.For<NorthwindContext>();
+            var mockDbSet = ToMockDbSet(new List<Customer>
             {
                 new Customer {CustomerID = 1},
                 new Customer {CustomerID = 2},
                 new Customer {CustomerID = 3},
-            }.AsQueryable();
+            });
+            _northwindContext.Customers = mockDbSet;
+        }
 
-            var queryable = _northwindContext.Customers.AsQueryable();
-            queryable.Expression.Returns(customers.Expression);
-            queryable.Provider.Returns(customers.Provider);
-            queryable.ElementType.Returns(queryable.ElementType);
-            queryable.GetEnumerator().Returns(new TestEnumerator<Customer>(customers.GetEnumerator()));
+        private DbSet<TEntity> ToMockDbSet<TEntity>(IEnumerable<TEntity> data) where TEntity : class
+        {
+            var mockDbSet = Substitute.For<DbSet<TEntity>, IQueryable<TEntity>>();
+            var dataQuery = data.AsQueryable();
+            var dbQuery   = (IQueryable<TEntity>) mockDbSet;
+            dbQuery.Expression.Returns(dataQuery.Expression);
+            dbQuery.Provider.Returns(dataQuery.Provider);
+            dbQuery.ElementType.Returns(dbQuery.ElementType);
+            dbQuery.GetEnumerator().Returns(new TestEnumerator<TEntity>(dataQuery.GetEnumerator()));
+
+            return mockDbSet;
         }
 
         [Test]
