@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NSubstitute;
@@ -29,9 +30,12 @@ namespace Persistence.Test
             var dataQuery = data.AsQueryable();
             mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.Expression).Returns(dataQuery.Expression);
             mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.ElementType).Returns(dataQuery.ElementType);
-            mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.Provider).Returns(dataQuery.Provider);
+            mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.Provider)
+                .Returns(new TestAsyncQueryProvider(dataQuery.Provider));
             mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.GetEnumerator())
                 .Returns(new TestEnumerator<TEntity>(data.GetEnumerator()));
+            mockDbSet.As<IAsyncEnumerable<TEntity>>().Setup(d => d.GetAsyncEnumerator(CancellationToken.None))
+                .Returns(new TestAsyncEnumerator<TEntity>(data.GetEnumerator()));
 
             return mockDbSet.Object;
         }

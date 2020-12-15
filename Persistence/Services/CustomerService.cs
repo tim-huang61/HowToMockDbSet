@@ -21,6 +21,8 @@ namespace Persistence.Services
 
         public async Task<Customer> FindByIDAsync(int id)
         {
+            var customers = await _northwindContext.Customers.ToListAsync();
+
             return await _northwindContext.Customers.FirstOrDefaultAsync(c => c.CustomerID == id);
         }
     }

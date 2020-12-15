@@ -61,5 +61,17 @@ namespace Persistence.Test
 
             customer.CustomerID.Should().Be(3);
         }
+
+        [Test]
+        public async Task Test_FindByIDAsync_Moq_To_Mock_DbSet()
+        {
+            _northwindContext           = new Mock<NorthwindContext>().Object;
+            _northwindContext.Customers = _data.ToMockDbSetByMoq();
+            var customerService = new CustomerService(_northwindContext);
+
+            var customer = await customerService.FindByIDAsync(3);
+
+            customer.CustomerID.Should().Be(3);
+        }
     }
 }
