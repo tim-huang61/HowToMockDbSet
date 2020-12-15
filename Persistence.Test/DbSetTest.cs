@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using NSubstitute;
 using Persistence.Services;
 using NUnit.Framework;
@@ -12,25 +13,38 @@ namespace Persistence.Test
     public class DbSetTest
     {
         private NorthwindContext _northwindContext;
+        private List<Customer>   _data;
 
         [SetUp]
         public void Setup()
         {
+            _data = new List<Customer>
+            {
+                new Customer {CustomerID = 1},
+                new Customer {CustomerID = 2},
+                new Customer {CustomerID = 3},
+            };
         }
 
         [Test]
         public void NSub_To_Mock_DbSet()
         {
-            _northwindContext = Substitute.For<NorthwindContext>();
-            _northwindContext.Customers = new List<Customer>
-            {
-                new Customer {CustomerID = 1},
-                new Customer {CustomerID = 2},
-                new Customer {CustomerID = 3},
-            }.ToMockDbSet();
+            _northwindContext           = Substitute.For<NorthwindContext>();
+            _northwindContext.Customers = _data.ToMockDbSet();
             var customerService = new CustomerService(_northwindContext);
 
             var customer = customerService.FindByID(3);
+
+            customer.CustomerID.Should().Be(3);
+        }
+
+        [Test]
+        public void Moq_To_Mock_DbSet()
+        {
+            _northwindContext           = new Mock<NorthwindContext>().Object;
+            _northwindContext.Customers = _data.ToMockDbSetByMoq();
+            var customerService = new CustomerService(_northwindContext);
+            var customer        = customerService.FindByID(3);
 
             customer.CustomerID.Should().Be(3);
         }

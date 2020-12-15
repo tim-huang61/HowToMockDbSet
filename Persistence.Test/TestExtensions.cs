@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using NSubstitute;
 
 namespace Persistence.Test
@@ -18,6 +19,19 @@ namespace Persistence.Test
             dbQuery.GetEnumerator().Returns(new TestEnumerator<TEntity>(dataQuery.GetEnumerator()));
 
             return mockDbSet;
+        }
+
+        public static DbSet<TEntity> ToMockDbSetByMoq<TEntity>(this List<TEntity> data) where TEntity : class
+        {
+            var mockDbSet = new Mock<DbSet<TEntity>>();
+            var dataQuery = data.AsQueryable();
+            mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.Expression).Returns(dataQuery.Expression);
+            mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.ElementType).Returns(dataQuery.ElementType);
+            mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.Provider).Returns(dataQuery.Provider);
+            mockDbSet.As<IQueryable<TEntity>>().Setup(d => d.GetEnumerator())
+                .Returns(new TestEnumerator<TEntity>(data.GetEnumerator()));
+
+            return mockDbSet.Object;
         }
     }
 }
