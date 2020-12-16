@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,14 @@ namespace Persistence.Services
             var customers = await _northwindContext.Customers.ToListAsync();
 
             return await _northwindContext.Customers.FirstOrDefaultAsync(c => c.CustomerID == id);
+        }
+
+        public async Task<IEnumerable<Customer>> FindAllAsync()
+        {
+            var customers = await _northwindContext.Customers
+                .Where(c => !c.IsDeleted).ToListAsync();
+
+            return customers;
         }
     }
 }

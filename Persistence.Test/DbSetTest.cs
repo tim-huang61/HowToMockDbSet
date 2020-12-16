@@ -21,7 +21,7 @@ namespace Persistence.Test
         {
             _data = new List<Customer>
             {
-                new Customer {CustomerID = 1},
+                new Customer {CustomerID = 1, IsDeleted = true},
                 new Customer {CustomerID = 2},
                 new Customer {CustomerID = 3},
             };
@@ -30,6 +30,7 @@ namespace Persistence.Test
         [Test]
         public void Test_FindByID_NSub_To_Mock_DbSet()
         {
+            // ToListAsync
             _northwindContext           = Substitute.For<NorthwindContext>();
             _northwindContext.Customers = _data.ToMockDbSet();
             var customerService = new CustomerService(_northwindContext);
@@ -42,6 +43,7 @@ namespace Persistence.Test
         [Test]
         public void Test_FindByID_Moq_To_Mock_DbSet()
         {
+            // ToListAsync
             _northwindContext           = new Mock<NorthwindContext>().Object;
             _northwindContext.Customers = _data.ToMockDbSetByMoq();
             var customerService = new CustomerService(_northwindContext);
@@ -53,6 +55,7 @@ namespace Persistence.Test
         [Test]
         public async Task Test_FindByIDAsync_NSub_To_Mock_DbSet()
         {
+            // FirstOrDefaultAsync
             _northwindContext           = Substitute.For<NorthwindContext>();
             _northwindContext.Customers = _data.ToMockDbSet();
             var customerService = new CustomerService(_northwindContext);
@@ -65,6 +68,7 @@ namespace Persistence.Test
         [Test]
         public async Task Test_FindByIDAsync_Moq_To_Mock_DbSet()
         {
+            // FirstOrDefaultAsync
             _northwindContext           = new Mock<NorthwindContext>().Object;
             _northwindContext.Customers = _data.ToMockDbSetByMoq();
             var customerService = new CustomerService(_northwindContext);
@@ -72,6 +76,19 @@ namespace Persistence.Test
             var customer = await customerService.FindByIDAsync(3);
 
             customer.CustomerID.Should().Be(3);
+        }
+
+        [Test]
+        public async Task Test_FindAll_NSub_To_Mock_DbSet()
+        {
+            // Where, ToListAsync
+            _northwindContext           = Substitute.For<NorthwindContext>();
+            _northwindContext.Customers = _data.ToMockDbSet();
+            var customerService = new CustomerService(_northwindContext);
+
+            var customers = await customerService.FindAllAsync();
+
+            customers.Count().Should().Be(2);
         }
     }
 }

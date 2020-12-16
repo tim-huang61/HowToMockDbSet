@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
-using Persistence.Models;
 
 namespace Persistence.Test
 {
@@ -23,7 +22,7 @@ namespace Persistence.Test
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return _provider.CreateQuery<TElement>(expression);
+            return new TestAsyncEnumerable<TElement>(expression);
         }
 
         public object Execute(Expression expression)
