@@ -29,10 +29,15 @@ namespace Persistence.Services
 
         public async Task<IEnumerable<Customer>> FindAllAsync()
         {
-            var customers = await _northwindContext.Customers
+            return await _northwindContext.Customers
                 .Where(c => !c.IsDeleted).ToListAsync();
+        }
 
-            return customers;
+        public async Task<IEnumerable<Customer>> FindAll_OrderByNameAsync()
+        {
+            return await _northwindContext.Customers
+                .Where(c => !c.IsDeleted)
+                .OrderBy(c => c.Name).ToListAsync();
         }
     }
 }

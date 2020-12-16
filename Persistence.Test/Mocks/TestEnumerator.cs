@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Persistence.Test
+namespace Persistence.Test.Mocks
 {
     public class TestEnumerator<TEntity> : IEnumerator<TEntity>
     {

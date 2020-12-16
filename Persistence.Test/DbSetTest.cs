@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using NSubstitute;
 using Persistence.Services;
 using NUnit.Framework;
 using Persistence.Models;
+using Persistence.Test.Mocks;
 
 namespace Persistence.Test
 {
@@ -21,9 +21,9 @@ namespace Persistence.Test
         {
             _data = new List<Customer>
             {
-                new Customer {CustomerID = 1, IsDeleted = true},
-                new Customer {CustomerID = 2},
-                new Customer {CustomerID = 3},
+                new() {CustomerID = 1, Name = "Pixel", IsDeleted = true},
+                new() {CustomerID = 2, Name = "Wendy"},
+                new() {CustomerID = 3, Name = "Tim"},
             };
         }
 
@@ -89,6 +89,22 @@ namespace Persistence.Test
             var customers = await customerService.FindAllAsync();
 
             customers.Count().Should().Be(2);
+        }
+
+        [Test]
+        public async Task Test_FindAll_OrderByNameAsync_NSub_To_Mock_DbSet()
+        {
+            // Where, OrderBy, ToListAsync
+            _northwindContext           = Substitute.For<NorthwindContext>();
+            _northwindContext.Customers = _data.ToMockDbSet();
+            var customerService = new CustomerService(_northwindContext);
+            var customers       = await customerService.FindAll_OrderByNameAsync();
+
+            customers.Should().BeEquivalentTo(new List<Customer>
+            {
+                new() {CustomerID = 3, Name = "Tim"},
+                new() {CustomerID = 2, Name = "Wendy"},
+            }, options => options.WithStrictOrdering());
         }
     }
 }

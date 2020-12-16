@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Persistence.Test
+namespace Persistence.Test.Mocks
 {
     public class TestAsyncEnumerator<TEntity> : IAsyncEnumerator<TEntity>
     {

@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace Persistence.Test
+namespace Persistence.Test.Mocks
 {
-    public class TestAsyncQueryProvider : IAsyncQueryProvider
+    public class TestAsyncQueryProvider<TEntity> : IAsyncQueryProvider
     {
         private readonly IQueryProvider _provider;
 
@@ -17,7 +17,7 @@ namespace Persistence.Test
 
         public IQueryable CreateQuery(Expression expression)
         {
-            return _provider.CreateQuery(expression);
+            return new TestAsyncEnumerable<TEntity>(expression);
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
